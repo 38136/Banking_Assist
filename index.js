@@ -6,7 +6,7 @@ const app = express();
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
+ app.use(bodyParser.json());
 app.post('/', (req, res) => {
     if (req.body.result.action === "greeting") {
 
@@ -33,7 +33,7 @@ app.post('/', (req, res) => {
 //                 });
 //             }
 //         });
-        
+         
             if (req.body.result.resolvedQuery == "hi") {
                 let textResponse = "hi, Siri need to open the account ? Which type Saving or Current Account ?"
                  return res.json({
