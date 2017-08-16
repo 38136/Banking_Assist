@@ -15,7 +15,7 @@ app.post('/', (req, res) => {
         let sender = event.sender.id;
 
         req.get((err, res, body) => {
-            if (!err && res.statusCode == 200) {
+            if (req.body.result.resolvedQuery == "hi") {
                 let textResponse = "hi" + fbUsername + "need to open the account ? Which type Saving or Current Account ?"
 
                 return res.json({
@@ -24,14 +24,14 @@ app.post('/', (req, res) => {
                     source : "greeting"
                 });
             }
-            else {
-                return res.status(400).json({
-                    status : {
-                        code : 400,
-                        errorType : "Error while binding the username"
-                    }
-                });
-            }
+//             else {
+//                 return res.status(400).json({
+//                     status : {
+//                         code : 400,
+//                         errorType : "Error while binding the username"
+//                     }
+//                 });
+//             }
         });
     }
 });
