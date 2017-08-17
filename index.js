@@ -1,37 +1,34 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-
-const app = express();
-
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+var express = require('express');
+var app = express();
+var bodyParser=require('body-parser');
+var fs=require('fs');
+const FACEBOOK_ACCESS_TOKEN = 'EAAEcxQbaWCMBABNahnU993UTC6V3Du1GCYIzOp6u1L2i43cuLQYejZCnSFI4gDdsZCZBAw5T6qf9BH924NXpbySbtZCqff9yYpEjOjvArjvD5ysHPPp35U03QlLy5ZBtmuD4nV38fZBYzVJXVQNvIOt7SV7R31bPyOm44ZCS4IM5cJOZBrpzB8sj';
+const fburl='https://graph.facebook.com/v2.6/';
+const request = require('request');
 app.use(bodyParser.json());
-app.post('/', (req, res) => {
-    if (req.body.result.action === "greeting") {
+app.use(bodyParser.urlencoded({ extended: true }));
+app.post("/", function (req, res) {
+fs.writeFileSync("./data.json",JSON.stringify(req.body),'utf8');
+var sender_id=req.body.originalRequest.data.sender.id;
+var rec_id=req.body.originalRequest.data.recipient.id;
 
-        let json = JSON.parse(body);
-        let fbUsername = json.first_name;
-        let sender = event.sender.id;
-
-        req.get((err, res, body) => {
-            if (req.body.result.resolvedQuery == "hi") {
-                let textResponse = "hi" + fbUsername + "need to open the account ? Which type Saving or Current Account ?"
-
-                return res.json({
-                    speech: textResponse,
-                    display: textResponse,
-                    source : "agent"
-                });
-            }
-//             else {
-//                 return res.status(400).json({
-//                     status : {
-//                         code : 400,
-//                         errorType : "Error while binding the username"
-//                     }
-//                 });
-//             }
+    if (req.body.result.action == "input.welcome") {
+        if (req.body.result.resolvedQuery == "hi") {
+         request({
+            uri: fburl+sender_id+"?access_token="+FACEBOOK_ACCESS_TOKEN,
+            methos: 'GET'
+        }, (err, response, body) => {
+            let bodys=JSON.parse(body);
+          return res.json({
+                speech:"Welcome, "+bodys.first_name+" "+bodys.last_name,
+                displayText: "Welcome, "+bodys.first_name+" "+bodys.last_name,
+                source: 'agent'
+            });
         });
+       
+              
+            
+        }
+
     }
 });
