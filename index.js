@@ -32,3 +32,13 @@ var rec_id=req.body.originalRequest.data.recipient.id;
 
     }
 });
+
+app.get("/getdata/",function(req, res){
+   fs.readFile("./data.json",'utf-8',function(err,data){
+      res.json(data);
+   });
+   
+});
+app.listen(process.env.PORT || 3000, function (message) {
+    console.log("Server is running on the port...");
+})
