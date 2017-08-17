@@ -12,7 +12,7 @@ fs.writeFileSync("./app.json",JSON.stringify(req.body),'utf8');
 var sender_id=req.body.originalRequest.data.sender.id;
 var rec_id=req.body.originalRequest.data.recipient.id;
 
-    if (req.body.result.action == "input.welcome") {
+    if (req.body.result.action == "greeting") {
         if (req.body.result.resolvedQuery == "hi") {
          request({
             uri: fburl+sender_id+"?access_token="+FACEBOOK_ACCESS_TOKEN,
