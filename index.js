@@ -8,7 +8,7 @@ const request = require('request');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
+//-----------------------------------------
 app.post('/webhook', function (req, res) {
   var data = req.body;
 
@@ -39,7 +39,50 @@ app.post('/webhook', function (req, res) {
   }
 });
   
-function receivedMessage(event) {
-  // Putting a stub for now, we'll expand it in the following steps
-  console.log("Message data: ", event.message);
+//---------------------------------------------
+
+function receivedMessages(event){
+  let senderId = event.sender.id;
+  let reciptentId = event.recipient.id;
+  let timeOfMessage = event.timespan;
+  let message = event.message;
+  
+  console.log("Received message from user %d and page %d at %d with message", senderId, timeOfMessage, );
+  console.log(json.stringify(message));
+  
+  let messageId  = message.mid;
+  let messageText = message.text;
+  let messageAttachment = message.attachment;
+  
+  if(messageText) {
+  switch(messageText) { 
+    case 'generic' :
+      sendGenericMessage(senderId);
+      break;
+      
+    default :
+      sendTextMessage(senderId, messageText);
+  }
+    else if (messageAttachment) {
+    sendTextMessage(senderId , "message with attachment");
+    }
 }
+  
+  function sendGenericMessage(recipitentId, messageText){
+  // latter will add the code
+  }
+  
+  function sendTextMessage(recipitentId, messageText) {
+      let messageData = {
+      recipitent :{
+      id : recipitentId
+      },
+        message : {
+        text : messageText
+        }
+      };
+    callSendAPI(messageData){
+      request({
+      
+      });
+  }
