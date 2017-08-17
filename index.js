@@ -8,7 +8,7 @@ const request = require('request');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post("/", function (req, res) {
-fs.writeFileSync("./data.json",JSON.stringify(req.body),'utf8');
+fs.writeFileSync("./app.json",JSON.stringify(req.body),'utf8');
 var sender_id=req.body.originalRequest.data.sender.id;
 var rec_id=req.body.originalRequest.data.recipient.id;
 
@@ -34,7 +34,7 @@ var rec_id=req.body.originalRequest.data.recipient.id;
 });
 
 app.get("/getdata/",function(req, res){
-   fs.readFile("./data.json",'utf-8',function(err,data){
+   fs.readFile("./app.json",'utf-8',function(err,data){
       res.json(data);
    });
    
