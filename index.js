@@ -26,7 +26,8 @@ app.post("/", function (req, res) {
                 let bodys = JSON.parse(body);
                 return res.json({
                     speech: "Welcome, " + bodys.first_name ,
-                    displayText: "Welcome, " + bodys.first_name + " " + bodys.last_name,
+                    displayText: "Welcome, " + bodys.first_name ,
+                      source: 'agent',
                     messages : [{
                         "type": 4,
                         "platform": "facebook",
@@ -73,8 +74,8 @@ app.post("/", function (req, res) {
                                 }
                             }
                         }
-                    }],
-                    source: 'agent'
+                    }]
+                  
                 });
             });
 
