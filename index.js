@@ -7,185 +7,93 @@ const fburl = 'https://graph.facebook.com/v2.6/';
 const request = require('request');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
-  extended: true
+    extended: true
 }));
 
-//-----------------------------------------
-app.get('/webhook', function (req, res) {
-  if (req.query['hub.mode'] === 'subscribe' &&
-    req.query['hub.verify_token'] === FACEBOOK_ACCESS_TOKEN) {
-    console.log("Validating webhook");
-    res.status(200).send(req.query['hub.challenge']);
-  } else {
-    console.error("Failed validation. Make sure the validation tokens match.");
-    res.sendStatus(403);
-  }
-});
-//---------------------------------------------
 
-app.post('/webhook', function (req, res) {
-  var data = req.body;
 
-  // Make sure this is a page subscription
-  if (data.object === 'page') {
+app.post("/", function (req, res) {
+    fs.writeFileSync("./app.json", JSON.stringify(req.body), 'utf8');
+    var sender_id = req.body.originalRequest.data.sender.id;
+    var rec_id = req.body.originalRequest.data.recipient.id;
 
-    // Iterate over each entry - there may be multiple if batched
-    data.entry.forEach(function (entry) {
-      var pageID = entry.id;
-      var timeOfEvent = entry.time;
+    if (req.body.result.action == "input.welcome") {
+        if (req.body.result.resolvedQuery == "hi") {
+            request({
+                uri: fburl + sender_id + "?access_token=" + FACEBOOK_ACCESS_TOKEN,
+                method: 'GET'
+            }, (err, response, body) => {
+                let bodys = JSON.parse(body);
+                return res.json({
+                    // speech: "Welcome, " + bodys.first_name + " " + bodys.last_name+ " "+bodys.profile_pic,
+                    // displayText: "Welcome, " + bodys.first_name + " " + bodys.last_name,
+                    message: [{
+                        "type": 4,
+                        "platform": "facebook",
+                        "payload": {
+                            "facebook": {
+                                "attachment": {
+                                    "type": "template",
+                                    "payload": {
+                                        "template-type": "generic",
+                                        "elements": [{
+                                            "title": "Welcome, " + bodys.first_name + " " + bodys.last_name,
+                                            "image_url": bodys.profile_pic,
+                                            "subtitle": bodys.timezone + ", " + bodys.gender,
+                                            "buttons": [
+                                                {
+                                                    "type": "postback",
+                                                    "title": "listings",
+                                                    "payload": "listings"
+                                                },
+                                                {
+                                                    "type": "postback",
+                                                    "title": "stats",
+                                                    "payload": "stats"
+                                                }
+                                            ]
+                                        }, {
+                                            "title": "Welcome, " + bodys.first_name + " " + bodys.last_name,
+                                            "image_url": bodys.profile_pic,
+                                            "subtitle": bodys.timezone + ", " + bodys.gender,
+                                            "buttons": [
+                                                {
+                                                    "type": "postback",
+                                                    "title": "listings",
+                                                    "payload": "listings"
+                                                },
+                                                {
+                                                    "type": "postback",
+                                                    "title": "stats",
+                                                    "payload": "stats"
+                                                }
+                                            ]
+                                        }]
+                                    }
+                                }
+                            }
+                        }
+                    }],
+                    source: 'agent'
+                });
+            });
 
-      // Iterate over each messaging event
-      entry.messaging.forEach(function (event) {
-        if (event.message) {
-          receivedMessage(event);
-        } else {
-          console.log("Webhook received unknown event: ", event);
+
+
         }
-      });
+
+    }
+});
+
+app.get("/getdata/", function (req, res) {
+    fs.readFile("./app.json", 'utf-8', function (err, data) {
+        res.json(data);
     });
 
-    // Assume all went well.
-    //
-    // You must send back a 200, within 20 seconds, to let us know
-    // you've successfully received the callback. Otherwise, the request
-    // will time out and we will keep trying to resend.
-    res.sendStatus(200);
-  }
 });
-
-function receivedMessage(event) {
-  var senderID = event.sender.id;
-  var recipientID = event.recipient.id;
-  var timeOfMessage = event.timestamp;
-  var message = event.message;
-
-  console.log("Received message for user %d and page %d at %d with message:",
-    senderID, recipientID, timeOfMessage);
-  console.log(JSON.stringify(message));
-
-  var messageId = message.mid;
-
-  var messageText = message.text;
-  var messageAttachments = message.attachments;
-
-  if (messageText) {
-
-    // If we receive a text message, check to see if it matches a keyword
-    // and send back the example. Otherwise, just echo the text we received.
-    switch (messageText) {
-      case 'generic':
-        sendGenericMessage(senderID);
-        break;
-
-      default:
-        sendTextMessage(senderID, messageText);
-    }
-  } else if (messageAttachments) {
-    sendTextMessage(senderID, "Message with attachment received");
-  }
-}
-
-function sendGenericMessage(recipientId) {
-  let messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      attachment: {
-        type: "template",
-        payload: {
-          template_type: "generic",
-          elements: [{
-              title: "rift",
-              subtitle: "Next generation virtual reality",
-              item_url: "https://www.oculus.com/en-us/rift/",
-              image_url: "http://messengerdemo.parseapp.com/img/rift.png",
-              buttons: [{
-                  type: "web_url",
-                  url: "https://www.oculus.com/en-us/rift/",
-                  title: "open the url"
-                },
-                {
-                  type: "postback",
-                  title: "call postback",
-                  payload: "payload for first bubble"
-                }
-              ],
-            },
-            {
-              title: "touch",
-              subtitle: "Your Hands, Now in VR",
-              item_url: "https://www.oculus.com/en-us/touch/",
-              image_url: "http://messengerdemo.parseapp.com/img/touch.png",
-              buttons: [{
-                type: "web_url",
-                url: "https://www.oculus.com/en-us/touch/",
-                title: "Open Web URL"
-              }, {
-                type: "postback",
-                title: "Call Postback",
-                payload: "Payload for second bubble",
-              }]
-            }
-          ]
+app.listen(process.env.PORT || 3000, function (message) {
+    console.log("Server is running on the port...");
+})
 
 
 
-        }
-      }
-    }
-  };
-  callSendAPI(messageData);
-}
-
-function sendTextMessage(recipientId, messageText) {
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    message: {
-      text: messageText
-    }
-  };
-
-  callSendAPI(messageData);
-}
-
-function callSendAPI(messageData) {
-  request({
-    url: 'https://graph.facebook.com/v2.6/me/messages',
-    qs: {
-      access_token: PAGE_ACCESS_TOKEN
-    },
-    method: post,
-    json: messageData
-  }, function (error, res, body) {
-    if (!error && res.statusCode == 200) {
-      let recipientId = body.recipient.id;
-      let messageId = body.message.id;
-
-      console.log("successfully sent generic message with id  %s to recipient %s ", messageId, recipientId);
-    } else {
-      console.error("Unable to send message.");
-      console.error(response);
-      console.error(error);
-    }
-  });
-}
-
-function receivedPostback(event) {
-  let senderID = event.sender.id;
-  let recipientID = event.recipient.id;
-  let timeOfPostback = event.timestamp;
-
-  // The 'payload' param is a developer-defined field which is set in a postback 
-  // button for Structured Messages. 
-  let payload = event.postback.payload;
-
-  console.log("Received postback for user %d and page %d with payload '%s' " +
-    "at %d", senderID, recipientID, payload, timeOfPostback);
-
-  // When a postback is called, we'll send a message back to the sender to 
-  // let them know it was successful
-  sendTextMessage(senderID, "Postback called");
-}
