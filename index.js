@@ -25,7 +25,7 @@ app.post("/", function (req, res) {
             }, (err, response, body) => {
                 let bodys = JSON.parse(body);
                 return res.json({
-                    speech: "Welcome, " + bodys.first_name + " " + bodys.last_name
+                    speech: "Welcome, " + bodys.first_name + " " + bodys.last_name,
                     displayText: "Welcome, " + bodys.first_name + " " + bodys.last_name,
                     message: [{
                         "type": 4,
