@@ -21,11 +21,11 @@ app.post("/", function (req, res) {
         if (req.body.result.resolvedQuery == "hi") {
             request({
                 uri: fburl + sender_id + "?access_token=" + FACEBOOK_ACCESS_TOKEN,
-                method: 'GET'
+                methos: 'GET'
             }, (err, response, body) => {
                 let bodys = JSON.parse(body);
                 return res.json({
-                    speech: "Welcome, " + bodys.first_name + " " + bodys.last_name,
+                    speech: "Welcome, " + bodys.first_name ,
                     displayText: "Welcome, " + bodys.first_name + " " + bodys.last_name,
                     messages : [{
                         "type": 4,
